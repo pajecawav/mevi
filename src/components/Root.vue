@@ -18,6 +18,18 @@
 		</button>
 	</div>
 
+	<!-- preload next and previous images in carousel -->
+	<img
+		v-if="selectedIndex !== null && files[selectedIndex - 1]"
+		class="sr-only"
+		:src="`/media/${files[selectedIndex - 1]}`"
+	/>
+	<img
+		v-if="selectedIndex !== null && files[selectedIndex + 1]"
+		class="sr-only"
+		:src="`/media/${files[selectedIndex + 1]}`"
+	/>
+
 	<div class="fixed inset-0 z-10 bg-black/70" v-if="selectedFile">
 		<div class="fixed inset-0" />
 
