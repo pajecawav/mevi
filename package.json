@@ -2,11 +2,15 @@
 	"name": "mevi",
 	"version": "0.1.0",
 	"bin": {
-		"mevi": "./build/server.js"
+		"mevi": "./build/main.js"
 	},
+	"repository": "https://github.com/pajecawav/mevi.git",
+	"bugs": "https://github.com/pajecawav/mevi/issues",
+	"homepage": "https://github.com/pajecawav/mevi#readme",
 	"files": [
-		"dist/*"
+		"build/**/*"
 	],
+	"license": "MIT",
 	"scripts": {
 		"dev": "run-p -l dev:*",
 		"dev:web": "vite",
@@ -20,7 +24,8 @@
 		"lint:tsc": "vue-tsc --noEmit",
 		"lint:format": "prettier . --check",
 		"format": "prettier . --write",
-		"prepare": "husky install"
+		"prepare": "husky install",
+		"prepublishOnly": "pnpm lint && pnpm build"
 	},
 	"dependencies": {
 		"@fastify/static": "^6.9.0",
