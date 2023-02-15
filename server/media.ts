@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { config } from "./config";
 
-export const IMAGE_EXTENSIONS = new Set(["jpeg", "jpg", "png", "bmp", "avif", "webp"]);
+export const IMAGE_EXTENSIONS = new Set(["jpeg", "jpg", "png", "bmp", "avif", "webp", "gif"]);
 
 function isMedia(file: string) {
 	const ext = path.extname(file).slice(1);
