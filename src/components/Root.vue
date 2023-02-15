@@ -19,14 +19,15 @@
 	</div>
 
 	<div class="fixed inset-0 z-10 bg-black/70" v-if="selectedFile">
-		<div class="fixed inset-0" @click="selectedIndex = null" />
+		<div class="fixed inset-0" />
 
-		<div class="fixed inset-0 grid items-center justify-center sm:inset-x-10 sm:inset-y-20">
+		<div class="fixed inset-0 flex items-center justify-center sm:inset-x-10 sm:inset-y-20">
 			<div
-				class="carousel relative w-full h-full aspect-square flex flex-col bg-neutral-800 sm:rounded-xl overflow-hidden"
+				class="carousel relative h-full aspect-square flex flex-col bg-neutral-800 sm:rounded-xl overflow-hidden"
 				@touchstart="handleTouchStart"
 				@touchend="handleTouchEnd"
 				@touchmove="handleTouchMove"
+				ref="carouselRef"
 			>
 				<img
 					class="w-full h-full object-contain"
@@ -59,7 +60,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { onClickOutside, useScrollLock } from "@vueuse/core";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import chevronRight from "../icons/chevron-right.svg";
 
 const json: string[] = await fetch("/api/files").then(res => res.json());
@@ -79,6 +81,13 @@ function selectNext() {
 		selectedIndex.value = (selectedIndex.value + 1) % files.value.length;
 	}
 }
+
+const isScrollLocked = useScrollLock(document.body);
+watch(selectedIndex, () => (isScrollLocked.value = selectedIndex.value !== null));
+
+const carouselRef = ref<HTMLDivElement | null>(null);
+
+onClickOutside(carouselRef, () => (selectedIndex.value = null));
 
 function handleKeyPress(e: KeyboardEvent) {
 	if (selectedIndex.value !== null) {
@@ -116,7 +125,6 @@ function handleTouchEnd() {
 function handleTouchMove(e: TouchEvent) {
 	const touch = e.changedTouches[0];
 	if (touch.identifier === touchStartId && e.touches.length === 1) {
-		e.preventDefault();
 		touchOffsetY.value = touch.clientY - touchStartY;
 	}
 }
