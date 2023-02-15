@@ -21,6 +21,12 @@
 	<div class="fixed inset-0 z-10 bg-black/70" v-if="selectedFile">
 		<div class="fixed inset-0" />
 
+		<button
+			class="fixed top-4 right-4 w-10 hidden sm:block transition-opacity duration-300 opacity-30 hover:opacity-100"
+		>
+			<img :src="xMarkIcon" />
+		</button>
+
 		<div class="fixed inset-0 flex items-center justify-center sm:inset-x-10 sm:inset-y-20">
 			<div
 				class="carousel relative h-full aspect-square flex flex-col bg-neutral-800 sm:rounded-xl overflow-hidden"
@@ -63,6 +69,7 @@
 import { onClickOutside, useScrollLock } from "@vueuse/core";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import chevronRight from "../icons/chevron-right.svg";
+import xMarkIcon from "../icons/x-mark.svg";
 
 const json: string[] = await fetch("/api/files").then(res => res.json());
 const files = ref(json);
