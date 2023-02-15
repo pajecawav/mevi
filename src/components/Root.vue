@@ -30,16 +30,14 @@
 		<div class="fixed inset-0 flex items-center justify-center sm:inset-x-10 sm:inset-y-20">
 			<div
 				class="carousel relative h-full aspect-square flex flex-col bg-neutral-800 sm:rounded-xl overflow-hidden"
-				@touchstart="handleTouchStart"
-				@touchend="handleTouchEnd"
-				@touchmove="handleTouchMove"
 				ref="carouselRef"
 			>
 				<img
-					class="w-full h-full object-contain"
-					:class="touchOffsetY === 0 && 'transition-transform'"
+					class="w-full h-full object-contain will-change-transform"
+					:class="!isSwiping && 'transition-transform'"
 					:src="`/media/${selectedFile}`"
-					:style="{ transform: `translateY(${touchOffsetY}px)` }"
+					:style="{ transform: transform }"
+					:key="selectedFile"
 				/>
 
 				<button
@@ -47,7 +45,7 @@
 					@click="selectPrev"
 				>
 					<img
-						class="ml-2 w-12 rotate-180 opacity-30 transition-opacity duration-300"
+						class="hidden ml-2 w-12 rotate-180 opacity-30 transition-opacity duration-300 sm:block"
 						:src="chevronRight"
 					/>
 				</button>
@@ -56,7 +54,7 @@
 					@click="selectNext"
 				>
 					<img
-						class="ml-auto mr-2 w-12 opacity-30 transition-opacity duration-300"
+						class="hidden ml-auto mr-2 w-12 opacity-30 transition-opacity duration-300 sm:block"
 						:src="chevronRight"
 					/>
 				</button>
@@ -66,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { onClickOutside, useScrollLock } from "@vueuse/core";
+import { onClickOutside, SwipeDirection, useScrollLock, useSwipe } from "@vueuse/core";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import chevronRight from "../icons/chevron-right.svg";
 import xMarkIcon from "../icons/x-mark.svg";
@@ -76,7 +74,7 @@ const files = ref(json);
 
 const selectedIndex = ref<number | null>(null);
 const selectedFile = computed(() =>
-	selectedIndex.value === null ? null : files.value?.[selectedIndex.value] ?? null
+	selectedIndex.value === null ? null : files.value[selectedIndex.value] ?? null
 );
 function selectPrev() {
 	if (selectedIndex.value !== null) {
@@ -94,13 +92,48 @@ watch(selectedIndex, () => (isScrollLocked.value = selectedIndex.value !== null)
 
 const carouselRef = ref<HTMLDivElement | null>(null);
 
-onClickOutside(carouselRef, () => (selectedIndex.value = null));
+function closeCarousel() {
+	selectedIndex.value = null;
+}
+
+onClickOutside(carouselRef, closeCarousel);
+
+const SWIPE_THRESHOLD = 100;
+const { lengthX, lengthY, isSwiping, direction } = useSwipe(carouselRef, {
+	onSwipeEnd(e, dir) {
+		if (dir === SwipeDirection.LEFT) {
+			if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
+				selectNext();
+			}
+			return;
+		} else if (dir === SwipeDirection.RIGHT) {
+			if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
+				selectPrev();
+			}
+			return;
+		}
+
+		if (Math.abs(lengthY.value) > SWIPE_THRESHOLD) {
+			closeCarousel();
+		}
+	},
+});
+
+const transform = computed(() => {
+	if (!isSwiping.value) {
+		return undefined;
+	} else if (direction.value === SwipeDirection.UP || direction.value === SwipeDirection.DOWN) {
+		return `translateY(${-lengthY.value}px)`;
+	} else {
+		return `translateX(${-lengthX.value}px)`;
+	}
+});
 
 function handleKeyPress(e: KeyboardEvent) {
 	if (selectedIndex.value !== null) {
 		switch (e.key) {
 			case "Escape":
-				selectedIndex.value = null;
+				closeCarousel();
 				break;
 			case "ArrowLeft":
 				selectPrev();
@@ -109,30 +142,6 @@ function handleKeyPress(e: KeyboardEvent) {
 				selectNext();
 				break;
 		}
-	}
-}
-
-let touchStartY = 0;
-let touchStartId: number | null = null;
-const touchOffsetY = ref(0);
-function handleTouchStart(e: TouchEvent) {
-	const touch = e.changedTouches[0];
-	touchStartY = touch.clientY;
-	touchStartId = touch.identifier;
-}
-function handleTouchEnd() {
-	if (Math.abs(touchOffsetY.value) > 200) {
-		selectedIndex.value = null;
-	}
-
-	touchStartY = 0;
-	touchStartId = null;
-	touchOffsetY.value = 0;
-}
-function handleTouchMove(e: TouchEvent) {
-	const touch = e.changedTouches[0];
-	if (touch.identifier === touchStartId && e.touches.length === 1) {
-		touchOffsetY.value = touch.clientY - touchStartY;
 	}
 }
 
