@@ -6,13 +6,13 @@
 			:key="file"
 			@click="selectedIndex = index"
 		>
-			<div class="aspect-square max-w-full">
-				<img
-					class="w-full h-full object-cover object-center"
-					:src="`/media/${file}`"
-					loading="lazy"
-				/>
-			</div>
+			<img
+				class="object-cover object-center aspect-square"
+				:src="`/media/${file}`"
+				loading="lazy"
+				width="4000"
+				height="4000"
+			/>
 			<!-- TODO: make filename toggable -->
 			<!-- <span class="text-sm text-center break-all">{{ file }}</span> -->
 		</button>
