@@ -31,8 +31,7 @@ fastify.register(FastifyStatic, {
 fastify.register(FastifyStatic, {
 	root: config.root,
 	prefix: "/media/",
-	// TODO: can't really cache files by filename
-	// maxAge: 60 * 60 * 1000,
+	maxAge: 60 * 60 * 1000,
 	decorateReply: false,
 });
 
