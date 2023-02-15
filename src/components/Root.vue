@@ -39,9 +39,9 @@
 			<img :src="xMarkIcon" />
 		</button>
 
-		<div class="fixed inset-0 flex items-center justify-center sm:inset-x-10 sm:inset-y-20">
+		<div class="fixed inset-0 flex items-center justify-center sm:inset-10">
 			<div
-				class="carousel relative h-full aspect-square flex flex-col bg-neutral-800 sm:rounded-xl overflow-hidden"
+				class="carousel relative h-full aspect-square flex flex-col bg-neutral-800/95 sm:rounded-xl overflow-hidden"
 				ref="carouselRef"
 			>
 				<img
@@ -169,7 +169,7 @@ onUnmounted(() => {
 <style scoped>
 .gallery {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(clamp(6rem, 15vw, 10rem), 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(clamp(10rem, 20vw, 15rem), 1fr));
 }
 
 .carousel .control-btn img {
