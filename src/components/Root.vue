@@ -1,6 +1,6 @@
 <template>
 	<div class="gallery max-w-7xl mx-auto p-1 gap-1">
-		<div
+		<button
 			v-for="(file, index) of files"
 			class="flex flex-col gap-2 cursor-pointer"
 			:key="file"
@@ -15,13 +15,13 @@
 			</div>
 			<!-- TODO: make filename toggable -->
 			<!-- <span class="text-sm text-center break-all">{{ file }}</span> -->
-		</div>
+		</button>
 	</div>
 
 	<div class="fixed inset-0 z-10 bg-black/70" v-if="selectedFile">
 		<div class="fixed inset-0" @click="selectedIndex = null" />
 
-		<div class="fixed inset-0 flex items-center justify-center sm:inset-x-10 sm:inset-y-20">
+		<div class="fixed inset-0 grid items-center justify-center sm:inset-x-10 sm:inset-y-20">
 			<div
 				class="carousel relative w-full h-full aspect-square flex flex-col bg-neutral-800 sm:rounded-xl overflow-hidden"
 				@touchstart="handleTouchStart"
