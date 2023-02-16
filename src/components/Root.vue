@@ -81,95 +81,32 @@
 </template>
 
 <script setup lang="ts">
-import { onClickOutside, SwipeDirection, useScrollLock, useSwipe } from "@vueuse/core";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { onClickOutside, useScrollLock } from "@vueuse/core";
+import { onMounted, onUnmounted, ref, watch } from "vue";
+import { useCarouselSwipe } from "../composables/useCarouselSwipe";
+import { useFiles } from "../composables/useFiles";
 import chevronRight from "../icons/chevron-right.svg";
 import xMarkIcon from "../icons/x-mark.svg";
 
-const json: string[] = await fetch("/api/files").then(res => res.json());
-const files = ref(json);
-
-function wrapIndex(index: number): number {
-	return (index + files.value.length) % files.value.length;
-}
-
-const selectedIndex = ref<number | null>(null);
-const selectedFile = computed(() =>
-	selectedIndex.value === null ? null : files.value[selectedIndex.value] ?? null
-);
-const prevFile = computed(() => {
-	return selectedIndex.value === null ? null : files.value[wrapIndex(selectedIndex.value - 1)];
-});
-const nextFile = computed(() => {
-	return selectedIndex.value === null ? null : files.value[wrapIndex(selectedIndex.value + 1)];
-});
-function selectPrev() {
-	if (selectedIndex.value !== null) {
-		selectedIndex.value = wrapIndex(selectedIndex.value - 1);
-	}
-}
-function selectNext() {
-	if (selectedIndex.value !== null) {
-		selectedIndex.value = wrapIndex(selectedIndex.value + 1);
-	}
-}
+const { files, selectedIndex, selectedFile, prevFile, nextFile, selectNext, selectPrev } =
+	await useFiles();
 
 const isScrollLocked = useScrollLock(document.body);
 watch(selectedIndex, () => (isScrollLocked.value = selectedIndex.value !== null));
 
 const carouselRef = ref<HTMLDivElement | null>(null);
 
+onClickOutside(carouselRef, closeCarousel);
+
+const { isSwiping, offsetX, offsetY } = useCarouselSwipe(carouselRef, {
+	onSelectNext: selectNext,
+	onSelectPrev: selectPrev,
+	onClose: closeCarousel,
+});
+
 function closeCarousel() {
 	selectedIndex.value = null;
 }
-
-onClickOutside(carouselRef, closeCarousel);
-
-const SWIPE_THRESHOLD = 100;
-const direction = ref<null | "vertical" | "horizontal">(null);
-const {
-	lengthX,
-	lengthY,
-	isSwiping,
-	direction: swipeDirection,
-} = useSwipe(carouselRef, {
-	onSwipeEnd(e, dir) {
-		if (direction.value === "horizontal") {
-			if (dir === SwipeDirection.LEFT) {
-				if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
-					selectNext();
-				}
-			} else {
-				if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
-					selectPrev();
-				}
-			}
-		} else if (direction.value === "vertical") {
-			if (Math.abs(lengthY.value) > SWIPE_THRESHOLD) {
-				closeCarousel();
-			}
-		}
-
-		direction.value = null;
-	},
-});
-watch([swipeDirection, isSwiping], ([newDirection, newIsSwiping]) => {
-	if (!newIsSwiping) {
-		direction.value = null;
-	} else if (direction.value !== null) {
-		return;
-	} else if (newDirection === SwipeDirection.UP || newDirection === SwipeDirection.DOWN) {
-		direction.value = "vertical";
-	} else {
-		direction.value = "horizontal";
-	}
-});
-const offsetX = computed(() => {
-	return direction.value === "horizontal" ? -lengthX.value : 0;
-});
-const offsetY = computed(() => {
-	return direction.value === "vertical" ? -lengthY.value : 0;
-});
 
 function handleKeyPress(e: KeyboardEvent) {
 	if (selectedIndex.value !== null) {
