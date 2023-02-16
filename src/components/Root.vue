@@ -35,14 +35,18 @@
 				<img
 					v-if="prevFile"
 					class="absolute top-0 left-0 w-full h-full object-contain block"
+					:class="!isSwiping && 'transition-transform'"
 					:style="{ transform: `translateX(calc(-100% - 1rem + ${offsetX}px))` }"
 					:src="`/media/${prevFile}`"
+					:key="prevFile"
 				/>
 				<img
 					v-if="nextFile"
 					class="absolute top-0 left-0 w-full h-full object-contain block"
+					:class="!isSwiping && 'transition-transform'"
 					:style="{ transform: `translateX(calc(100% + 1rem + ${offsetX}px))` }"
 					:src="`/media/${nextFile}`"
+					:key="nextFile"
 				/>
 
 				<img
@@ -122,43 +126,49 @@ function closeCarousel() {
 onClickOutside(carouselRef, closeCarousel);
 
 const SWIPE_THRESHOLD = 100;
-const { lengthX, lengthY, isSwiping, direction } = useSwipe(carouselRef, {
+const direction = ref<null | "vertical" | "horizontal">(null);
+const {
+	lengthX,
+	lengthY,
+	isSwiping,
+	direction: swipeDirection,
+} = useSwipe(carouselRef, {
 	onSwipeEnd(e, dir) {
-		if (dir === SwipeDirection.LEFT) {
-			if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
-				selectNext();
+		if (direction.value === "horizontal") {
+			if (dir === SwipeDirection.LEFT) {
+				if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
+					selectNext();
+				}
+			} else {
+				if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
+					selectPrev();
+				}
 			}
-			return;
-		} else if (dir === SwipeDirection.RIGHT) {
-			if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
-				selectPrev();
+		} else if (direction.value === "vertical") {
+			if (Math.abs(lengthY.value) > SWIPE_THRESHOLD) {
+				closeCarousel();
 			}
-			return;
 		}
 
-		if (Math.abs(lengthY.value) > SWIPE_THRESHOLD) {
-			closeCarousel();
-		}
+		direction.value = null;
 	},
 });
-
-const offsetX = computed(() => {
-	if (
-		isSwiping.value &&
-		(direction.value === SwipeDirection.LEFT || direction.value === SwipeDirection.RIGHT)
-	) {
-		return -lengthX.value;
+watch([swipeDirection, isSwiping], ([newDirection, newIsSwiping]) => {
+	if (!newIsSwiping) {
+		direction.value = null;
+	} else if (direction.value !== null) {
+		return;
+	} else if (newDirection === SwipeDirection.UP || newDirection === SwipeDirection.DOWN) {
+		direction.value = "vertical";
+	} else {
+		direction.value = "horizontal";
 	}
-	return 0;
+});
+const offsetX = computed(() => {
+	return direction.value === "horizontal" ? -lengthX.value : 0;
 });
 const offsetY = computed(() => {
-	if (
-		isSwiping.value &&
-		(direction.value === SwipeDirection.UP || direction.value === SwipeDirection.DOWN)
-	) {
-		return -lengthY.value;
-	}
-	return 0;
+	return direction.value === "vertical" ? -lengthY.value : 0;
 });
 
 function handleKeyPress(e: KeyboardEvent) {
