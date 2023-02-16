@@ -18,23 +18,11 @@
 		</button>
 	</div>
 
-	<!-- preload next and previous images in carousel -->
-	<img
-		v-if="selectedIndex !== null && files[selectedIndex - 1]"
-		class="sr-only"
-		:src="`/media/${files[selectedIndex - 1]}`"
-	/>
-	<img
-		v-if="selectedIndex !== null && files[selectedIndex + 1]"
-		class="sr-only"
-		:src="`/media/${files[selectedIndex + 1]}`"
-	/>
-
 	<div class="fixed inset-0 z-10 bg-black/70" v-if="selectedFile">
 		<div class="fixed inset-0" />
 
 		<button
-			class="fixed top-4 right-4 w-10 hidden sm:block transition-opacity duration-300 opacity-30 hover:opacity-100"
+			class="fixed top-2 right-2 w-8 z-10 hidden sm:block transition-opacity duration-300 opacity-30 hover:opacity-100"
 		>
 			<img :src="xMarkIcon" />
 		</button>
@@ -45,10 +33,23 @@
 				ref="carouselRef"
 			>
 				<img
+					v-if="prevFile"
+					class="absolute top-0 left-0 w-full h-full object-contain block"
+					:style="{ transform: `translateX(calc(-100% - 1rem + ${offsetX}px))` }"
+					:src="`/media/${prevFile}`"
+				/>
+				<img
+					v-if="nextFile"
+					class="absolute top-0 left-0 w-full h-full object-contain block"
+					:style="{ transform: `translateX(calc(100% + 1rem + ${offsetX}px))` }"
+					:src="`/media/${nextFile}`"
+				/>
+
+				<img
 					class="w-full h-full object-contain will-change-transform"
 					:class="!isSwiping && 'transition-transform'"
 					:src="`/media/${selectedFile}`"
-					:style="{ transform: transform }"
+					:style="{ transform: `translate(${offsetX}px, ${offsetY}px)` }"
 					:key="selectedFile"
 				/>
 
@@ -84,18 +85,28 @@ import xMarkIcon from "../icons/x-mark.svg";
 const json: string[] = await fetch("/api/files").then(res => res.json());
 const files = ref(json);
 
+function wrapIndex(index: number): number {
+	return (index + files.value.length) % files.value.length;
+}
+
 const selectedIndex = ref<number | null>(null);
 const selectedFile = computed(() =>
 	selectedIndex.value === null ? null : files.value[selectedIndex.value] ?? null
 );
+const prevFile = computed(() => {
+	return selectedIndex.value === null ? null : files.value[wrapIndex(selectedIndex.value - 1)];
+});
+const nextFile = computed(() => {
+	return selectedIndex.value === null ? null : files.value[wrapIndex(selectedIndex.value + 1)];
+});
 function selectPrev() {
 	if (selectedIndex.value !== null) {
-		selectedIndex.value = (selectedIndex.value - 1 + files.value.length) % files.value.length;
+		selectedIndex.value = wrapIndex(selectedIndex.value - 1);
 	}
 }
 function selectNext() {
 	if (selectedIndex.value !== null) {
-		selectedIndex.value = (selectedIndex.value + 1) % files.value.length;
+		selectedIndex.value = wrapIndex(selectedIndex.value + 1);
 	}
 }
 
@@ -131,14 +142,23 @@ const { lengthX, lengthY, isSwiping, direction } = useSwipe(carouselRef, {
 	},
 });
 
-const transform = computed(() => {
-	if (!isSwiping.value) {
-		return undefined;
-	} else if (direction.value === SwipeDirection.UP || direction.value === SwipeDirection.DOWN) {
-		return `translateY(${-lengthY.value}px)`;
-	} else {
-		return `translateX(${-lengthX.value}px)`;
+const offsetX = computed(() => {
+	if (
+		isSwiping.value &&
+		(direction.value === SwipeDirection.LEFT || direction.value === SwipeDirection.RIGHT)
+	) {
+		return -lengthX.value;
 	}
+	return 0;
+});
+const offsetY = computed(() => {
+	if (
+		isSwiping.value &&
+		(direction.value === SwipeDirection.UP || direction.value === SwipeDirection.DOWN)
+	) {
+		return -lengthY.value;
+	}
+	return 0;
 });
 
 function handleKeyPress(e: KeyboardEvent) {
