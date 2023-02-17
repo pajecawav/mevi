@@ -9,21 +9,19 @@ export const useFiles = async () => {
 	}
 
 	const selectedIndex = ref<number | null>(null);
-	const selectedFile = computed(() =>
-		selectedIndex.value === null ? null : files.value[selectedIndex.value] ?? null
-	);
 
-	const prevFile = computed(() => {
-		return selectedIndex.value === null
-			? null
-			: files.value[wrapIndex(selectedIndex.value - 1)];
+	const visibleFiles = computed(() => {
+		if (selectedIndex.value === null) return null;
+		return [
+			files.value[wrapIndex(selectedIndex.value - 1)],
+			files.value[wrapIndex(selectedIndex.value)],
+			files.value[wrapIndex(selectedIndex.value + 1)],
+		];
 	});
 
-	const nextFile = computed(() => {
-		return selectedIndex.value === null
-			? null
-			: files.value[wrapIndex(selectedIndex.value + 1)];
-	});
+	function selectFile(index: number | null) {
+		selectedIndex.value = index;
+	}
 
 	function selectPrev() {
 		if (selectedIndex.value !== null) {
@@ -37,5 +35,5 @@ export const useFiles = async () => {
 		}
 	}
 
-	return { files, selectedIndex, selectedFile, prevFile, nextFile, selectNext, selectPrev };
+	return { files, visibleFiles, selectFile, selectNext, selectPrev };
 };
