@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+	touch-action: manipulation;
+}
+
 button:focus {
 	-webkit-tap-highlight-color: transparent;
 }

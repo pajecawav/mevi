@@ -14,6 +14,7 @@ export const useCarouselSwipe = (
 	{ onSelectNext, onSelectPrev, onClose }: UseCarouselSwipeOptions
 ) => {
 	const direction = ref<null | "vertical" | "horizontal">(null);
+	const isLeftSwipe = ref<boolean | null>(null);
 
 	const {
 		lengthX,
@@ -21,13 +22,21 @@ export const useCarouselSwipe = (
 		isSwiping,
 		direction: swipeDirection,
 	} = useSwipe(carouselRef, {
+		threshold: 25,
+		onSwipeStart() {
+			isLeftSwipe.value = null;
+		},
 		onSwipeEnd(e, dir) {
+			isLeftSwipe.value = null;
+
 			if (direction.value === "horizontal") {
 				if (dir === SwipeDirection.LEFT) {
+					isLeftSwipe.value = true;
 					if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
 						onSelectNext();
 					}
 				} else {
+					isLeftSwipe.value = false;
 					if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
 						onSelectPrev();
 					}
@@ -62,5 +71,5 @@ export const useCarouselSwipe = (
 		return direction.value === "vertical" ? -lengthY.value : 0;
 	});
 
-	return { direction, isSwiping, offsetX, offsetY };
+	return { direction, isSwiping, offsetX, offsetY, isLeftSwipe };
 };

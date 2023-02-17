@@ -32,30 +32,38 @@
 				class="carousel relative h-full aspect-square flex flex-col bg-neutral-800/95 sm:rounded-xl overflow-hidden"
 				ref="carouselRef"
 			>
-				<img
-					v-if="prevFile"
-					class="absolute top-0 left-0 w-full h-full object-contain block"
-					:class="!isSwiping && 'transition-transform'"
-					:style="{ transform: `translateX(calc(-100% - 1rem + ${offsetX}px))` }"
-					:src="`/media/${prevFile}`"
-					:key="prevFile"
-				/>
-				<img
-					v-if="nextFile"
-					class="absolute top-0 left-0 w-full h-full object-contain block"
-					:class="!isSwiping && 'transition-transform'"
-					:style="{ transform: `translateX(calc(100% + 1rem + ${offsetX}px))` }"
-					:src="`/media/${nextFile}`"
-					:key="nextFile"
-				/>
-
-				<img
-					class="w-full h-full object-contain will-change-transform"
-					:class="!isSwiping && 'transition-transform'"
-					:src="`/media/${selectedFile}`"
-					:style="{ transform: `translate(${offsetX}px, ${offsetY}px)` }"
-					:key="selectedFile"
-				/>
+				<TransitionGroup
+					tag="div"
+					:name="
+						isLeftSwipe === true
+							? 'list-left'
+							: isLeftSwipe === false
+							? 'list-right'
+							: undefined
+					"
+					class="relative w-full h-full flex"
+					:style="{
+						transform: `translate(calc(-100% + ${offsetX}px), ${offsetY}px)`,
+					}"
+				>
+					<img
+						v-if="prevFile"
+						class="min-w-full h-full object-contain"
+						:src="`/media/${prevFile}`"
+						:key="prevFile"
+					/>
+					<img
+						class="min-w-full h-full object-contain"
+						:src="`/media/${selectedFile}`"
+						:key="selectedFile"
+					/>
+					<img
+						v-if="nextFile"
+						class="min-w-full h-full object-contain"
+						:src="`/media/${nextFile}`"
+						:key="nextFile"
+					/>
+				</TransitionGroup>
 
 				<button
 					class="control-btn absolute left-0 top-0 bottom-0 w-1/3 outline-none"
@@ -98,7 +106,7 @@ const carouselRef = ref<HTMLDivElement | null>(null);
 
 onClickOutside(carouselRef, closeCarousel);
 
-const { isSwiping, offsetX, offsetY } = useCarouselSwipe(carouselRef, {
+const { offsetX, offsetY, isLeftSwipe } = useCarouselSwipe(carouselRef, {
 	onSelectNext: selectNext,
 	onSelectPrev: selectPrev,
 	onClose: closeCarousel,
@@ -149,5 +157,25 @@ onUnmounted(() => {
 
 .carousel .control-btn:hover img {
 	opacity: 0.9;
+}
+
+.list-left-move,
+.list-right-move,
+.list-left-enter-active,
+.list-right-enter-active,
+.list-left-leave-active,
+.list-right-leave-active {
+	transition: transform 0.15s ease-out;
+}
+
+.list-right-leave-to {
+	transform: translateX(calc(300%));
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-left-leave-active,
+.list-right-leave-active {
+	position: absolute;
 }
 </style>
