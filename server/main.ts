@@ -44,7 +44,12 @@ async function main() {
 	}
 }
 
-process.on("SIGINT", () => fastify.close());
-process.on("SIGTERM", () => fastify.close());
+async function close() {
+	await fastify.close();
+	process.exit(0);
+}
+
+process.on("SIGINT", close);
+process.on("SIGTERM", close);
 
 main();

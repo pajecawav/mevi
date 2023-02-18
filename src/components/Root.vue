@@ -4,7 +4,7 @@
 			<button
 				class="w-10 p-[0.3em] rounded-md transition-colors duration-100 hover:bg-gray-200 sm:w-8"
 				@click="shuffle"
-				title="Shuffle files"
+				title="Shuffle"
 			>
 				<img :src="shuffleIcon" />
 			</button>
