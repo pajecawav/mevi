@@ -21,4 +21,4 @@ jobs:
             - uses: pajecawav/tiny-file-size-action@v1
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
-                  globs: "dist/**/*"
+                  globs: "build/**/*"
