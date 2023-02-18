@@ -1,6 +1,12 @@
 {
 	"name": "mevi",
 	"version": "0.2.1",
+	"description": "Simple web-based image viewer",
+	"keywords": [
+		"gallery",
+		"viewer",
+		"photo"
+	],
 	"bin": {
 		"mevi": "./build/main.js"
 	},
