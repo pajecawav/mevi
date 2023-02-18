@@ -2,9 +2,11 @@
 	<Suspense>
 		<Root />
 
-		<template #fallback
-			><div class="w-screen h-screen grid place-items-center"><Spinner class="w-10" /></div
-		></template>
+		<template #fallback>
+			<div class="w-screen h-screen grid place-items-center">
+				<Spinner class="w-10" />
+			</div>
+		</template>
 	</Suspense>
 </template>
 
