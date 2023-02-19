@@ -85,9 +85,11 @@ function handleKeyPress(e: KeyboardEvent) {
 			emit("close");
 			break;
 		case "ArrowLeft":
+			isLeftSwipe.value = null;
 			emit("selectPrev");
 			break;
 		case "ArrowRight":
+			isLeftSwipe.value = null;
 			emit("selectNext");
 			break;
 	}
