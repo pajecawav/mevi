@@ -1,5 +1,5 @@
 <template>
-	<div class="fixed inset-0 z-10 bg-black/70">
+	<div class="fixed inset-0 z-10 bg-black/70 backdrop-blur-sm">
 		<div class="fixed inset-0" />
 
 		<button
