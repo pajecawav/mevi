@@ -1,5 +1,5 @@
 import { computed, ref, Ref, watch } from "vue";
-import { SwipeDirection, useSwipe } from "@vueuse/core";
+import { useSwipe } from "@vueuse/core";
 
 const SWIPE_THRESHOLD = 100;
 
@@ -30,7 +30,7 @@ export const useCarouselSwipe = (
 			isLeftSwipe.value = null;
 
 			if (direction.value === "horizontal") {
-				if (dir === SwipeDirection.LEFT) {
+				if (dir === "left") {
 					isLeftSwipe.value = true;
 					if (Math.abs(lengthX.value) > SWIPE_THRESHOLD) {
 						onSelectNext();
@@ -56,7 +56,7 @@ export const useCarouselSwipe = (
 			direction.value = null;
 		} else if (direction.value !== null) {
 			return;
-		} else if (newDirection === SwipeDirection.UP || newDirection === SwipeDirection.DOWN) {
+		} else if (newDirection === "up" || newDirection === "down") {
 			direction.value = "vertical";
 		} else {
 			direction.value = "horizontal";
