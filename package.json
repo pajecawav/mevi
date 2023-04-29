@@ -36,7 +36,7 @@
 	"dependencies": {
 		"@fastify/static": "^6.10.1",
 		"fastify": "^4.16.3",
-		"pino-pretty": "^9.4.0",
+		"pino-pretty": "^10.0.0",
 		"yargs": "^17.7.1"
 	},
 	"devDependencies": {
