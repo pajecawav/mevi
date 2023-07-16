@@ -11,7 +11,7 @@ interface UseCarouselSwipeOptions {
 
 export const useCarouselSwipe = (
 	carouselRef: Ref<HTMLElement | null | undefined>,
-	{ onSelectNext, onSelectPrev, onClose }: UseCarouselSwipeOptions
+	{ onSelectNext, onSelectPrev, onClose }: UseCarouselSwipeOptions,
 ) => {
 	const direction = ref<null | "vertical" | "horizontal">(null);
 	const isLeftSwipe = ref<boolean | null>(null);
