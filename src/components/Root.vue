@@ -17,11 +17,12 @@
 				@click="selectFile(index)"
 			>
 				<img
-					class="object-cover object-center aspect-square"
+					class="object-cover object-center aspect-square gallery-item"
 					:src="`/media/${file}`"
 					loading="lazy"
 					width="4000"
 					height="4000"
+					:data-index="index"
 				/>
 				<!-- TODO: make filename toggable -->
 				<!-- <span class="text-sm text-center break-all">{{ file }}</span> -->
@@ -45,10 +46,18 @@ import { useFiles } from "../composables/useFiles";
 import Carousel from "./Carousel.vue";
 import shuffleIcon from "../icons/shuffle.svg";
 
-const { files, visibleFiles, selectFile, selectNext, selectPrev } = await useFiles();
+const { files, selectedIndex, visibleFiles, selectFile, selectNext, selectPrev } = await useFiles();
 
 const isScrollLocked = useScrollLock(document.body);
 watch(visibleFiles, () => (isScrollLocked.value = visibleFiles.value !== null));
+
+watch(selectedIndex, () => {
+	if (selectedIndex.value !== null) {
+		document
+			.querySelector(`.gallery-item[data-index="${selectedIndex.value}"]`)
+			?.scrollIntoView({ block: "nearest" });
+	}
+});
 
 function shuffle() {
 	for (let i = files.value.length - 1; i >= 0; i--) {

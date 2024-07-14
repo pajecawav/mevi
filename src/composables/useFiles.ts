@@ -35,5 +35,5 @@ export const useFiles = async () => {
 		}
 	}
 
-	return { files, visibleFiles, selectFile, selectNext, selectPrev };
+	return { files, selectedIndex, visibleFiles, selectFile, selectNext, selectPrev };
 };
